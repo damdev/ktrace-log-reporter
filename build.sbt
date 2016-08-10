@@ -5,7 +5,7 @@ organization := "io.kamon"
 scalaVersion := "2.11.5"
 
 resolvers ++= Seq(
-  "Nexus Snapshots Repository" at "http://nexus.***REMOVED***.it:8080/nexus/content/repositories/releases",
+  "Nexus Snapshots Repository" at "http://nexus.despegar.it:8080/nexus/content/repositories/releases",
   "Sonatype releases" at "https://oss.sonatype.org/content/repositories/releases/",
   "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
   "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
 
 publishTo := {
   if(version.value.endsWith("SNAPSHOT"))
-    Some("Nexus snapshots" at "http://nexus.***REMOVED***.it:8080/nexus/content/repositories/snapshots/")
+    Some("Nexus snapshots" at "http://nexus.despegar.it:8080/nexus/content/repositories/snapshots/")
   else
-    Some("Nexus releases" at "http://nexus.***REMOVED***.it:8080/nexus/content/repositories/releases/")
+    Some("Nexus releases" at "http://nexus.despegar.it:8080/nexus/content/repositories/releases/")
 }
