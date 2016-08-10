@@ -11,12 +11,7 @@ $( document ).ready(function() {
 
     function formatHead(s) {
       var parts = s.split('#');
-      return parts[0]+"("+parts[1]+")"
-    }
-
-    function formatAlt(s) {
-      var parts = s.split('#');
-      return "start:" + parts[2] + " duration:" + parts[3];
+      return parts[0]+"("+parts[1]+")" + " duration:" + parseInt(parts[3].replace('.nanos', '')/1000000) + "ms";
     }
 
     function writeItem(rawLine) {
@@ -24,30 +19,37 @@ $( document ).ready(function() {
       if(match) {
         var item = match[1];
         var itemParts = item.split('!');
-        $('div#items').append('<li><a href="#" class="item" data-segments="' + itemParts[1] + '" alt="' + formatAlt(itemParts[0]) + '">' + formatHead(itemParts[0]) + '</li>');
+        $('div#items').append('<li><a href="#" class="item" data-segments="' + itemParts[1] + '" data-head="' + itemParts[0] + '">' + formatHead(itemParts[0]) + '</li>');
       }
     }
 
     $('.item').on('click', function(event) {
+      var head = $(event.target).data('head');
+      var t0 = parseInt(head.split('#')[2].replace('.nanos', ''))
+
       var segs = $(event.target).data('segments');
-      chart.dataProvider = parseAm(segs);
+      chart.dataProvider = [parseAmHead(head, t0)].concat(parseAm(segs, t0));
       chart.validateData();
     });
 
-    function parseAmWithHeader(line) {
-        var vals = line.split('!');
-        var header = vals[0];
-        var data = vals[1];
-        return {
-          'header': header,
-          'data': data
-        };
-    }
 }
 
-  function parseAm(data) {
+  function parseAmHead(head, t0) {
+    var parts = head.split('#');
+    return {
+        'category': parts[1],
+        'segments': [
+          {
+            'task': parts[1],
+            'start': parseInt(parts[2].replace('.nanos', '')) -t0,
+            'duration': parseInt(parts[3].replace('.nanos', ''))
+          }
+        ]
+      };
+  }
+
+  function parseAm(data, t0) {
     var segments = data.split('|');
-    var t0 = parseInt(segments[0].split('#')[1]);
     var res = segments.map(function(currentValue, index, array) {
         var parts = currentValue.split('#');
         return {
@@ -94,7 +96,7 @@ $( document ).ready(function() {
     "startField": "start",
     "endField": "end",
     "durationField": "duration",
-    "dataProvider": parseAm('AuditController.auditpost#1469806580498804321#2701067839|AuditController.parseRequestBody#1469806580500900540#372440038|AuditController.process#1469806580882069065#2317430120|AuditValidator.validate1#1469806580884369913#29592902|AuditValidator.validate2#1469806580888536022#21709488|AuditValidator.validateAdditionalFilters#1469806580908003243#2138712|AuditController.translateAndResolveAll#1469806580920139739#528504837|AuditController.translate#1469806580924143942#32502328|AuditResolver.resolve#1469806580988220396#460268930|AuditResolver.audit#1469806581185860548#262534395|AuditController.save#1469806581451808021#1727853001|TxSupport.connection#1469806581454709614#19196004|TxSupport.begin#1469806581479168719#2683665|AuditProvider.savesWithinSession#1469806581568069499#1596937800|TxSupport.commit#1469806583167480783#11627356|AuditController.logAuditSizeToInsights#1469806583182687460#16495897'),
+    "dataProvider": [],
     "valueScrollbar": {
       "autoGridCount": true
     },
